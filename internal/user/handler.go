@@ -155,17 +155,14 @@ func (h *UserHandler) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 		switch err {
 		case errUserNotFound:
 			utils.BadRequest(w, r, err, h.logger)
-			return
 		case errEmailTaken:
 			utils.BadRequest(w, r, err, h.logger)
-			return
 		case errUsernameTaken:
 			utils.BadRequest(w, r, err, h.logger)
-			return
 		default:
 			utils.InternalServerError(w, r, err, h.logger)
-			return
 		}
+		return
 	}
 
 	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"user": updatedUser})

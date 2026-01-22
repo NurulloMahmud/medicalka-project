@@ -57,3 +57,10 @@ func RateLimitExceeded(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[ERROR] RATE LIMIT EXCEEDED!\nURL: %s\nMethod: %s\nError: %v\n", requestURL, requestMethod, msg)
 	WriteJSON(w, http.StatusTooManyRequests, Envelope{"error": "Too many requests, please try again later"})
 }
+
+func NotFound(w http.ResponseWriter, r *http.Request, log *log.Logger) {
+	requestURL := r.URL.String()
+	requestMethod := r.Method
+	log.Printf("[ERROR] NOT FOUND!\nURL: %s\nMethod: %s\n", requestURL, requestMethod)
+	WriteJSON(w, http.StatusNotFound, Envelope{"error": "resource not found"})
+}

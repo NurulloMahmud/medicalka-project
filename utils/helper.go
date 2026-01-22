@@ -11,19 +11,6 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func ReadIDParam(r *http.Request) (int64, error) {
-	idParam := chi.URLParam(r, "id")
-	if idParam == "" {
-		return 0, errors.New("invalid id parameter")
-	}
-	id, err := strconv.ParseInt(idParam, 10, 64)
-	if err != nil {
-		return 0, errors.New("invalid id parameter type")
-	}
-
-	return id, nil
-}
-
 func ReadIdentifierParam(r *http.Request) (string, error) {
 	idParam := chi.URLParam(r, "identifier")
 	if idParam == "" {
@@ -57,4 +44,18 @@ func GenerateVerificationToken() (string, error) {
 		return "", err
 	}
 	return base64.URLEncoding.EncodeToString(bytes), nil
+}
+
+func ReadInt(r *http.Request, key string, defaultValue int) int {
+	s := r.URL.Query().Get(key)
+	if s == "" {
+		return defaultValue
+	}
+
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return defaultValue
+	}
+
+	return i
 }

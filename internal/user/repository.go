@@ -13,8 +13,8 @@ type Repository interface {
 	Create(ctx context.Context, u User, token string) (*User, error)
 	UserExists(ctx context.Context, username, email string) (bool, error)
 	Get(ctx context.Context, id uuid.UUID, username, email string) (*User, error)
-	verifyToken(ctx context.Context, token string) (*uuid.UUID, error)
-	update(ctx context.Context, user *User, token string) error
+	VerifyToken(ctx context.Context, token string) (*uuid.UUID, error)
+	Update(ctx context.Context, user *User, token string) error
 }
 
 type postgresRepo struct {
@@ -108,7 +108,7 @@ func (r *postgresRepo) Get(ctx context.Context, id uuid.UUID, username, email st
 	return &user, nil
 }
 
-func (r *postgresRepo) update(ctx context.Context, user *User, token string) error {
+func (r *postgresRepo) Update(ctx context.Context, user *User, token string) error {
 	tx, err := r.db.Begin()
 	if err != nil {
 		return err
@@ -154,7 +154,7 @@ func (r *postgresRepo) update(ctx context.Context, user *User, token string) err
 	return tx.Commit()
 }
 
-func (r *postgresRepo) verifyToken(ctx context.Context, token string) (*uuid.UUID, error) {
+func (r *postgresRepo) VerifyToken(ctx context.Context, token string) (*uuid.UUID, error) {
 	var userID uuid.UUID
 	query := `
 	SELECT user_id

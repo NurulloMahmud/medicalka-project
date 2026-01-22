@@ -69,7 +69,7 @@ func (s *UserService) get(ctx context.Context, id uuid.UUID, username, email str
 }
 
 func (s *UserService) verifyUser(ctx context.Context, token string) error {
-	userID, err := s.repo.verifyToken(ctx, token)
+	userID, err := s.repo.VerifyToken(ctx, token)
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func (s *UserService) verifyUser(ctx context.Context, token string) error {
 	user.IsVerified = true
 	user.UpdatedAt = time.Now()
 
-	return s.repo.update(ctx, user, "")
+	return s.repo.Update(ctx, user, "")
 }
 
 func (s *UserService) update(ctx context.Context, data updateUserRequest) (*User, error) {
@@ -138,7 +138,7 @@ func (s *UserService) update(ctx context.Context, data updateUserRequest) (*User
 	}
 
 	user.UpdatedAt = time.Now()
-	err = s.repo.update(ctx, user, token)
+	err = s.repo.Update(ctx, user, token)
 	if err != nil {
 		return nil, err
 	}

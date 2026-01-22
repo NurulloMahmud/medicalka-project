@@ -47,10 +47,11 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		}
 
 		contextUser := utils.User{
-			ID:       user.ID,
-			Email:    user.Email,
-			FullName: user.FullName,
-			Username: user.Username,
+			ID:         user.ID,
+			Email:      user.Email,
+			FullName:   user.FullName,
+			Username:   user.Username,
+			IsVerified: user.IsVerified,
 		}
 
 		r = utils.SetUser(r, &contextUser)

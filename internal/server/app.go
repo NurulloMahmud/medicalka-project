@@ -8,6 +8,7 @@ import (
 	"github.com/NurulloMahmud/medicalka-project/config"
 	"github.com/NurulloMahmud/medicalka-project/internal/middleware"
 	"github.com/NurulloMahmud/medicalka-project/internal/platform/database"
+	"github.com/NurulloMahmud/medicalka-project/internal/post"
 	"github.com/NurulloMahmud/medicalka-project/internal/tasks"
 	"github.com/NurulloMahmud/medicalka-project/internal/user"
 	"github.com/NurulloMahmud/medicalka-project/migrations"
@@ -18,6 +19,7 @@ type Application struct {
 	DB          *sql.DB
 	Cfg         config.Config
 	UserHandler user.UserHandler
+	PostHandler post.PostHandler
 	Middleware  middleware.Middleware
 }
 
@@ -39,12 +41,15 @@ func NewApplication(cfg config.Config) (*Application, error) {
 
 	// repositories
 	userPostgresRepo := user.NewPostgresRepository(pgDB)
+	postRepo := post.NewPostgresRepository(pgDB)
 
 	// services
 	userService := user.NewService(userPostgresRepo, emailSender)
+	postService := post.NewService(postRepo)
 
 	// handlers
 	userHandler := user.NewHandler(userService, logger, cfg)
+	postHandler := post.NewHandler(postService, logger)
 
 	// middlewares
 	middleware := middleware.NewMiddleware(logger, userPostgresRepo, cfg)
@@ -55,6 +60,7 @@ func NewApplication(cfg config.Config) (*Application, error) {
 		Cfg:         cfg,
 		UserHandler: *userHandler,
 		Middleware:  *middleware,
+		PostHandler: *postHandler,
 	}
 
 	return app, nil
