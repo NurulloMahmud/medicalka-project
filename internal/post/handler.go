@@ -133,6 +133,11 @@ func (h *PostHandler) HandleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !ctxUser.IsVerified {
+		utils.Unauthorized(w, r, "You need to be verified to update post")
+		return
+	}
+
 	idParam := chi.URLParam(r, "id")
 	postID, err := uuid.Parse(idParam)
 	if err != nil {
@@ -173,6 +178,11 @@ func (h *PostHandler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	ctxUser := utils.GetUser(r.Context())
 	if ctxUser.IsAnonymous() {
 		utils.Unauthorized(w, r, "authentication required")
+		return
+	}
+
+	if !ctxUser.IsVerified {
+		utils.Unauthorized(w, r, "You need to be verified to delete post")
 		return
 	}
 

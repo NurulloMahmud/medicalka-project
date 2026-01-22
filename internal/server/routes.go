@@ -31,6 +31,10 @@ func (app *Application) Routes() *chi.Mux {
 		// posts
 		r.Post("/api/posts/{id}/comments", app.CommentHandler.HandleCreate)
 		r.Delete("/api/posts/{postID}/comments/{commentID}", app.CommentHandler.HandleDelete)
+
+		// likes
+		r.Post("/api/posts/{id}/like", app.LikeHandler.HandleCreate)
+		r.Delete("/api/posts/{id}/like", app.LikeHandler.HandleDelete)
 	})
 
 	return r
