@@ -5,6 +5,8 @@ import "github.com/go-chi/chi/v5"
 func (app *Application) Routes() *chi.Mux {
 	r := chi.NewRouter()
 
+	r.Use(app.Middleware.RateLimit)
+
 	// user management endpoints (public)
 	r.Post("/api/auth/register", app.UserHandler.HandleRegister)
 	r.Post("/api/auth/login", app.UserHandler.HandleLogin)
