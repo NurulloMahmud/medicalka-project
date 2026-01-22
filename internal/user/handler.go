@@ -8,7 +8,6 @@ import (
 
 	"github.com/NurulloMahmud/medicalka-project/config"
 	"github.com/NurulloMahmud/medicalka-project/internal/auth"
-	"github.com/NurulloMahmud/medicalka-project/pkg"
 	"github.com/NurulloMahmud/medicalka-project/utils"
 	"github.com/google/uuid"
 )
@@ -110,7 +109,7 @@ func (h *UserHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) HandleMe(w http.ResponseWriter, r *http.Request) {
-	ctxUser := pkg.GetUser(r.Context())
+	ctxUser := utils.GetUser(r.Context())
 	if ctxUser.IsAnonymous() {
 		utils.Unauthorized(w, r, "User not logged in")
 		return
@@ -131,7 +130,7 @@ func (h *UserHandler) HandleMe(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) HandleUpdate(w http.ResponseWriter, r *http.Request) {
-	ctxUser := pkg.GetUser(r.Context())
+	ctxUser := utils.GetUser(r.Context())
 	if ctxUser.IsAnonymous() {
 		utils.Unauthorized(w, r, "You should be logged in to change data")
 		return

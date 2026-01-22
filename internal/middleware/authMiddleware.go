@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/NurulloMahmud/medicalka-project/internal/auth"
-	"github.com/NurulloMahmud/medicalka-project/pkg"
 	"github.com/NurulloMahmud/medicalka-project/utils"
 )
 
@@ -16,7 +15,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		authHeader := r.Header.Get("Authorization")
 
 		if authHeader == "" {
-			r = pkg.SetUser(r, pkg.AnonymousUser)
+			r = utils.SetUser(r, utils.AnonymousUser)
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -47,14 +46,14 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			return
 		}
 
-		contextUser := pkg.User{
+		contextUser := utils.User{
 			ID:       user.ID,
 			Email:    user.Email,
 			FullName: user.FullName,
 			Username: user.Username,
 		}
 
-		r = pkg.SetUser(r, &contextUser)
+		r = utils.SetUser(r, &contextUser)
 		next.ServeHTTP(w, r)
 	})
 }

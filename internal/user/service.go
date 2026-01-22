@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/NurulloMahmud/medicalka-project/internal/tasks"
-	"github.com/NurulloMahmud/medicalka-project/pkg"
 	"github.com/NurulloMahmud/medicalka-project/utils"
 	"github.com/google/uuid"
 )
@@ -91,7 +90,7 @@ func (s *UserService) verifyUser(ctx context.Context, token string) error {
 }
 
 func (s *UserService) update(ctx context.Context, data updateUserRequest) (*User, error) {
-	ctxUser := pkg.GetUser(ctx)
+	ctxUser := utils.GetUser(ctx)
 
 	user, err := s.repo.Get(ctx, ctxUser.ID, "", "")
 	if err != nil {
