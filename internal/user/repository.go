@@ -15,6 +15,7 @@ type Repository interface {
 	Get(ctx context.Context, id uuid.UUID, username, email string) (*User, error)
 	VerifyToken(ctx context.Context, token string) (*uuid.UUID, error)
 	Update(ctx context.Context, user *User, token string) error
+	DeleteUnverifiedUsers(ctx context.Context) (int64, error)
 }
 
 type postgresRepo struct {
@@ -170,4 +171,24 @@ func (r *postgresRepo) VerifyToken(ctx context.Context, token string) (*uuid.UUI
 	}
 
 	return &userID, nil
+}
+
+func (r *postgresRepo) DeleteUnverifiedUsers(ctx context.Context) (int64, error) {
+	// email update qilganida ham is_verified = false qilganimiz uchun 
+	// (users.created_at < NOW() - 24 hrs) qilaolmimiz
+	query := `
+	DELETE FROM users
+	WHERE is_verified = false
+	AND id in (
+		SELECT user_id  
+		FROM email_verification_tokens
+		WHERE expires_at > NOW()
+	)`
+
+	result, err := r.db.ExecContext(ctx, query)
+	if err != nil {
+		return 0, err
+	}
+
+	return result.RowsAffected()
 }
