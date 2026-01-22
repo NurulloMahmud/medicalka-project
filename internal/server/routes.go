@@ -17,7 +17,7 @@ func (app *Application) Routes() *chi.Mux {
 
 	r.Group(func(r chi.Router) {
 		r.Use(app.Middleware.Authenticate)
-		
+
 		// user management
 		r.Get("/api/auth/me", app.UserHandler.HandleMe)
 		r.Patch("/api/auth/me", app.UserHandler.HandleUpdate)
@@ -27,6 +27,10 @@ func (app *Application) Routes() *chi.Mux {
 		r.Post("/api/posts", app.PostHandler.HandleCreate)
 		r.Patch("/api/posts/{id}", app.PostHandler.HandleUpdate)
 		r.Delete("/api/posts/{id}", app.PostHandler.HandleDelete)
+
+		// posts
+		r.Post("/api/posts/{id}/comments", app.CommentHandler.HandleCreate)
+		r.Delete("/api/posts/{postID}/comments/{commentID}", app.CommentHandler.HandleDelete)
 	})
 
 	return r

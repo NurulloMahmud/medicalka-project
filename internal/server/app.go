@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/NurulloMahmud/medicalka-project/config"
+	"github.com/NurulloMahmud/medicalka-project/internal/comment"
 	"github.com/NurulloMahmud/medicalka-project/internal/middleware"
 	"github.com/NurulloMahmud/medicalka-project/internal/platform/database"
 	"github.com/NurulloMahmud/medicalka-project/internal/post"
@@ -15,12 +16,13 @@ import (
 )
 
 type Application struct {
-	Logger      *log.Logger
-	DB          *sql.DB
-	Cfg         config.Config
-	UserHandler user.UserHandler
-	PostHandler post.PostHandler
-	Middleware  middleware.Middleware
+	Logger         *log.Logger
+	DB             *sql.DB
+	Cfg            config.Config
+	UserHandler    user.UserHandler
+	PostHandler    post.PostHandler
+	CommentHandler comment.CommentHandler
+	Middleware     middleware.Middleware
 }
 
 func NewApplication(cfg config.Config) (*Application, error) {
@@ -42,25 +44,29 @@ func NewApplication(cfg config.Config) (*Application, error) {
 	// repositories
 	userPostgresRepo := user.NewPostgresRepository(pgDB)
 	postRepo := post.NewPostgresRepository(pgDB)
+	commentPostgresRepo := comment.NewPostgresRepository(pgDB)
 
 	// services
 	userService := user.NewService(userPostgresRepo, emailSender)
 	postService := post.NewService(postRepo)
+	commentService := comment.NewService(commentPostgresRepo)
 
 	// handlers
 	userHandler := user.NewHandler(userService, logger, cfg)
 	postHandler := post.NewHandler(postService, logger)
+	commentHandler := comment.NewHandler(commentService, logger)
 
 	// middlewares
 	middleware := middleware.NewMiddleware(logger, userPostgresRepo, cfg)
 
 	app := &Application{
-		Logger:      logger,
-		DB:          pgDB,
-		Cfg:         cfg,
-		UserHandler: *userHandler,
-		Middleware:  *middleware,
-		PostHandler: *postHandler,
+		Logger:         logger,
+		DB:             pgDB,
+		Cfg:            cfg,
+		UserHandler:    *userHandler,
+		Middleware:     *middleware,
+		PostHandler:    *postHandler,
+		CommentHandler: *commentHandler,
 	}
 
 	return app, nil
