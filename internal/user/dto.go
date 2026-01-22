@@ -8,8 +8,10 @@ import (
 
 var (
 	errEmailFormat     = errors.New("invalid email format")
-	errUsernameLength  = errors.New("Username must contain between 3 and 32 characters")
-	errFullNameLength  = errors.New("Full name must contain between 3 and 32 characters")
+	errUsernameLength  = errors.New("username must contain between 3 and 32 characters")
+	errUsernameFormat  = errors.New("username can only contain latin letters, digits and underscore")
+	errFullNameLength  = errors.New("full name must contain between 2 and 100 characters")
+	errFullNameFormat  = errors.New("full name can only contain letters, spaces and hyphens")
 	errPasswordLength  = errors.New("password length must be between 4 and 32")
 	errNoUsernameEmail = errors.New("username or email is mandatory to login")
 )
@@ -27,12 +29,14 @@ func (r *registerUserRequest) validate() error {
 		return errEmailFormat
 	}
 
-	if len(strings.TrimSpace(r.Username)) < 3 || len(strings.TrimSpace(r.Username)) > 32 {
-		return errUsernameLength
+	err = validateUsername(r.Username)
+	if err != nil {
+		return err
 	}
 
-	if len(strings.TrimSpace(r.FullName)) < 3 || len(strings.TrimSpace(r.FullName)) > 32 {
-		return errFullNameLength
+	err = validateFullName(r.FullName)
+	if err != nil {
+		return err
 	}
 
 	passwordLen := len(strings.TrimSpace(r.Password))
@@ -85,14 +89,16 @@ func (r *updateUserRequest) Validate() error {
 	}
 
 	if r.Username != nil {
-		if len(strings.TrimSpace(*r.Username)) < 3 || len(strings.TrimSpace(*r.Username)) > 32 {
-			return errUsernameLength
+		err := validateUsername(*r.Username)
+		if err != nil {
+			return err
 		}
 	}
 
 	if r.FullName != nil {
-		if len(strings.TrimSpace(*r.FullName)) < 3 || len(strings.TrimSpace(*r.FullName)) > 32 {
-			return errFullNameLength
+		err := validateFullName(*r.FullName)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -101,6 +107,34 @@ func (r *updateUserRequest) Validate() error {
 		if passwordLen > 32 || passwordLen < 4 {
 			return errPasswordLength
 		}
+	}
+
+	return nil
+}
+
+func validateUsername(username string) error {
+	username = strings.TrimSpace(username)
+	if len(username) < 3 || len(username) > 32 {
+		return errUsernameLength
+	}
+
+	usernameRegex := regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
+	if !usernameRegex.MatchString(username) {
+		return errUsernameFormat
+	}
+
+	return nil
+}
+
+func validateFullName(fullName string) error {
+	fullName = strings.TrimSpace(fullName)
+	if len(fullName) < 2 || len(fullName) > 100 {
+		return errFullNameLength
+	}
+
+	fullNameRegex := regexp.MustCompile(`^[\p{L}\s\-]+$`)
+	if !fullNameRegex.MatchString(fullName) {
+		return errFullNameFormat
 	}
 
 	return nil

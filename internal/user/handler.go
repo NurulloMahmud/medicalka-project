@@ -56,8 +56,8 @@ func (h *UserHandler) HandleRegister(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
-	var invalidID uuid.UUID
 	var data loginRequest
+	var username, email string
 
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
@@ -71,7 +71,14 @@ func (h *UserHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.service.get(r.Context(), invalidID, *data.Username, *data.Email)
+	if data.Username != nil {
+		username = *data.Username
+	}
+	if data.Email != nil {
+		email = *data.Email
+	}
+
+	user, err := h.service.get(r.Context(), uuid.Nil, username, email)
 	if err != nil {
 		utils.InternalServerError(w, r, err, h.logger)
 		return
