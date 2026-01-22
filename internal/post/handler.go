@@ -208,3 +208,29 @@ func (h *PostHandler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"message": "post deleted successfully"})
 }
+
+func (h *PostHandler) HandleGetFeed(w http.ResponseWriter, r *http.Request) {
+	var req getFeedRequest
+
+	req.Page = utils.ReadInt(r, "page", 1)
+	req.PageSize = utils.ReadInt(r, "page_size", 10)
+	req.Sort = "username"
+	req.SortSafeList = []string{"username"}
+
+	err := req.Validate()
+	if err != nil {
+		utils.BadRequest(w, r, err, h.logger)
+		return
+	}
+
+	feed, metadata, err := h.service.getFeed(r.Context(), req)
+	if err != nil {
+		utils.InternalServerError(w, r, err, h.logger)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, utils.Envelope{
+		"data":     feed,
+		"metadata": metadata,
+	})
+}

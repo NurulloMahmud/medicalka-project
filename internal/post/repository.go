@@ -16,6 +16,7 @@ type Repository interface {
 	GetByIDSimple(ctx context.Context, id uuid.UUID) (*Post, error)
 	Update(ctx context.Context, p *Post) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	GetFeed(ctx context.Context, req getFeedRequest) ([]feedUserResponse, int, error)
 }
 
 type postgresRepo struct {
@@ -187,4 +188,74 @@ func (r *postgresRepo) Delete(ctx context.Context, id uuid.UUID) error {
 
 	_, err := r.db.ExecContext(ctx, query, id)
 	return err
+}
+
+func (r *postgresRepo) GetFeed(ctx context.Context, req getFeedRequest) ([]feedUserResponse, int, error) {
+	countQuery := `SELECT COUNT(DISTINCT u.id) FROM users u INNER JOIN posts p ON p.author_id = u.id`
+
+	var total int
+	err := r.db.QueryRowContext(ctx, countQuery).Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	query := `
+	SELECT 
+		u.id,
+		u.username,
+		COALESCE(
+			(
+				SELECT json_agg(
+					jsonb_build_object(
+						'id', p.id,
+						'title', p.title,
+						'content', p.content,
+						'likes', COALESCE(
+							(
+								SELECT json_agg(l.user_id)
+								FROM likes l
+								WHERE l.post_id = p.id
+							),
+							'[]'
+						)
+					)
+					ORDER BY p.created_at DESC
+				)
+				FROM posts p
+				WHERE p.author_id = u.id
+			),
+			'[]'
+		) AS posts
+	FROM users u
+	WHERE EXISTS (SELECT 1 FROM posts p WHERE p.author_id = u.id)
+	ORDER BY u.username
+	LIMIT $1 OFFSET $2`
+
+	rows, err := r.db.QueryContext(ctx, query, req.Limit(), req.Offset())
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	var feed []feedUserResponse
+
+	for rows.Next() {
+		var userID uuid.UUID
+		var f feedUserResponse
+		var postsJSON []byte
+
+		err := rows.Scan(&userID, &f.Username, &postsJSON)
+		if err != nil {
+			return nil, 0, err
+		}
+
+		json.Unmarshal(postsJSON, &f.Posts)
+		feed = append(feed, f)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, 0, err
+	}
+
+	return feed, total, nil
 }

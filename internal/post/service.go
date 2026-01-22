@@ -100,3 +100,13 @@ func (s *PostService) delete(ctx context.Context, postID, userID uuid.UUID) erro
 
 	return s.repo.Delete(ctx, postID)
 }
+
+func (s *PostService) getFeed(ctx context.Context, req getFeedRequest) ([]feedUserResponse, utils.Metadata, error) {
+	feed, total, err := s.repo.GetFeed(ctx, req)
+	if err != nil {
+		return nil, utils.Metadata{}, err
+	}
+
+	metadata := utils.CalculateMetadata(total, req.Page, req.PageSize)
+	return feed, metadata, nil
+}

@@ -92,3 +92,23 @@ func (r *updatePostRequest) Validate() error {
 
 	return nil
 }
+
+type getFeedRequest struct {
+	utils.Filter
+}
+
+func (r *getFeedRequest) Validate() error {
+	return r.Filter.Validate()
+}
+
+type feedPostResponse struct {
+	ID      uuid.UUID   `json:"id"`
+	Title   string      `json:"title"`
+	Content string      `json:"content"`
+	Likes   []uuid.UUID `json:"likes"`
+}
+
+type feedUserResponse struct {
+	Username string             `json:"username"`
+	Posts    []feedPostResponse `json:"posts"`
+}

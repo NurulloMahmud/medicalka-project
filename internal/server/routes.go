@@ -14,6 +14,7 @@ func (app *Application) Routes() *chi.Mux {
 	// unprotected post endpoints
 	r.Get("/api/posts", app.PostHandler.HandleGetAll)
 	r.Get("/api/posts/{id}", app.PostHandler.HandleGetByID)
+	r.Get("/api/feed", app.PostHandler.HandleGetFeed)
 
 	r.Group(func(r chi.Router) {
 		r.Use(app.Middleware.Authenticate)
