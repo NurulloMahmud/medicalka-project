@@ -71,7 +71,7 @@ Environment variables:
 | POST | /api/auth/register | Register new user | No |
 | POST | /api/auth/login | Login and get token | No |
 | GET | /api/auth/me | Get current user | Yes |
-| PATCH | /api/auth/me | Update current user | Yes |
+| PATCH | /api/users/me | Update current user | Yes |
 | GET | /api/verify-email?token= | Verify email address | Yes |
 
 ### Posts

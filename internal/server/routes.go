@@ -21,7 +21,7 @@ func (app *Application) Routes() *chi.Mux {
 
 		// user management
 		r.Get("/api/auth/me", app.UserHandler.HandleMe)
-		r.Patch("/api/auth/me", app.UserHandler.HandleUpdate)
+		r.Patch("/api/users/me", app.UserHandler.HandleUpdate)
 		r.Get("/api/verify-email", app.UserHandler.HandleEmailVerification)
 
 		// posts
